@@ -45,11 +45,10 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
     @PostMapping("/upload")
-    public void handleFileUpload(@RequestParam("file") MultipartFile file)
+    public void handleFileUpload(@RequestParam("file") MultipartFile file, @RequestBody User user)
             throws IOException, SQLException {
-        String userName = getCurrentUserName();
-        User user = userRepository.findUserByName(userName);
         if (!file.isEmpty()) {
             fileService.uploadFile(file, user);
         }
@@ -57,22 +56,14 @@ public class FileController {
 
     @PostMapping("/share")
     public void handleFileShare(@RequestParam(name = "recipient") String recipient,
-                                @RequestParam(name = "selectedFile") Long selectedFile) {
-        User recipientUser = userRepository.findUserByName(recipient);
+                                @RequestParam(name = "selectedFile") Long selectedFile,
+                                @RequestBody User user) {
         File file = fileService.getFileById(selectedFile);
-        fileService.shareFile(file, recipientUser);
+        fileService.shareFile(file, user);
     }
 
     @PostMapping("/delete/{fileId}")
     public void deleteFile(@PathVariable Long fileId) {
         fileService.deleteFile(fileId);
-    }
-
-    private String getCurrentUserName() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-            return ((UserDetails) authentication.getPrincipal()).getUsername();
-        }
-        return null;
     }
 }
