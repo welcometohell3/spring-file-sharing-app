@@ -1,28 +1,23 @@
 package com.welcometohell.filesharing.controller;
 
-import com.welcometohell.filesharing.entity.File;
 import com.welcometohell.filesharing.entity.User;
 import com.welcometohell.filesharing.repo.UserRepository;
 import com.welcometohell.filesharing.service.FileService;
+import com.welcometohell.filesharing.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/files")
 public class FileController {
 
@@ -32,38 +27,58 @@ public class FileController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) throws SQLException {
-        Optional<File> fileOptional = fileService.getFileEntity(fileId);
-        if (fileOptional.isPresent()) {
-            File file = fileOptional.get();
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
-                    .body(new InputStreamResource(new ByteArrayInputStream(file.getFileData())));
+    @PostMapping("/upload")
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
+                                                   @RequestParam("userId") Long userId) {
+        Optional<User> userOptional  = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            try {
+                fileService.uploadFile(file, user);
+                return ResponseEntity.ok("File uploaded successfully");
+            } catch (IOException e) {
+                return ResponseEntity.status(500).body("File upload failed");
+            }
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).body("User not found");
         }
     }
 
-    @PostMapping("/upload")
-    public void handleFileUpload(@RequestParam("file") MultipartFile file, @RequestBody User user)
-            throws IOException, SQLException {
-        if (!file.isEmpty()) {
-            fileService.uploadFile(file, user);
+    @GetMapping("/download/{fileId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
+        try {
+            byte[] data = fileService.getFileData(fileId);
+            if (data != null) {
+                ByteArrayResource resource = new ByteArrayResource(data);
+                String filename = fileService.getFileEntity(fileId).get().getName();
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .header(HttpHeaders.CONTENT_DISPOSITION,
+                                "attachment; filename=\"" + filename + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.status(404).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
         }
     }
 
     @PostMapping("/share")
-    public void handleFileShare(@RequestParam(name = "recipient") String recipient,
-                                @RequestParam(name = "selectedFile") Long selectedFile,
-                                @RequestBody User user) {
-        File file = fileService.getFileById(selectedFile);
-        fileService.shareFile(file, user);
+    public ResponseEntity<String> handleFileShare(@RequestParam("fileId") Long fileId,
+                                                  @RequestParam("recipientUsername") String recipientUsername) {
+        fileService.shareFile(fileId, recipientUsername);
+        return ResponseEntity.ok("File shared successfully");
     }
 
-    @PostMapping("/delete/{fileId}")
-    public void deleteFile(@PathVariable Long fileId) {
-        fileService.deleteFile(fileId);
+    @DeleteMapping("/delete/{fileId}")
+    public ResponseEntity<String> deleteFile(@PathVariable Long fileId) {
+        try {
+            fileService.deleteFile(fileId);
+            return ResponseEntity.ok("File deleted successfully");
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body("File deletion failed");
+        }
     }
 }

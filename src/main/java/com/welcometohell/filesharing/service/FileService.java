@@ -3,47 +3,76 @@ package com.welcometohell.filesharing.service;
 import com.welcometohell.filesharing.entity.File;
 import com.welcometohell.filesharing.entity.User;
 import com.welcometohell.filesharing.repo.FileRepository;
+import com.welcometohell.filesharing.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class FileService {
+
     @Autowired
     private FileRepository fileRepository;
 
-    public void uploadFile(MultipartFile file, User user) throws IOException, SQLException {
-        File file1 = new File();
-        file1.setName(file.getOriginalFilename());
-        file1.setFileData(file.getBytes());
-        file1.addUser(user);
-        fileRepository.save(file1);
+    @Autowired
+    private UserRepository userRepository;
+
+    public void uploadFile(MultipartFile file, User user) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        String filename = UUID.randomUUID() + "_" + originalFilename;
+        String uploadDir = "uploads/";
+        Path filePath = Paths.get(uploadDir + filename);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        File fileEntity = new File();
+        fileEntity.setName(originalFilename);
+        fileEntity.setPath(filePath.toString());
+        fileEntity.addUser(user);
+        fileRepository.save(fileEntity);
     }
 
-    public void shareFile(File file, User user) {
-        if (!file.getUsers().contains(user)) {
-            file.addUser(user);
-            fileRepository.save(file);
+    public void shareFile(Long fileId, String recipientUsername) {
+        Optional<File> fileOptional = fileRepository.findById(fileId);
+        Optional<User> recipientOptional = userRepository.findUserByName(recipientUsername);
+
+        if (fileOptional.isPresent() && recipientOptional.isPresent()) {
+            File file = fileOptional.get();
+            User recipient = recipientOptional.get();
+
+            if (!file.getUsers().contains(recipient)) {
+                file.addUser(recipient);
+                fileRepository.save(file);
+            }
         }
     }
-    public List<File> getFilesByUserId(Long userId) {
-        return fileRepository.findAllById(userId);
+
+    public byte[] getFileData(Long fileId) throws IOException {
+        File file = fileRepository.findById(fileId).orElse(null);
+        if (file != null) {
+            Path filePath = Paths.get(file.getPath());
+            return Files.readAllBytes(filePath);
+        }
+        return null;
     }
 
-    public File getFileById(Long fileId) {
-        return fileRepository.findById(fileId).orElse(null);
+    public void deleteFile(Long fileId) throws IOException {
+        File file = fileRepository.findById(fileId).orElse(null);
+        if (file != null) {
+            Path filePath = Paths.get(file.getPath());
+            Files.deleteIfExists(filePath);
+            fileRepository.deleteById(fileId);
+        }
     }
 
-    public void deleteFile(Long id){
-        fileRepository.deleteById(id);
-    }
-
-    public Optional<File> getFileEntity(Long id) {
-        return fileRepository.findById(id);
+    public Optional<File> getFileEntity(Long fileId) {
+        return fileRepository.findById(fileId);
     }
 }

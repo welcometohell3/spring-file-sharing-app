@@ -18,8 +18,7 @@ public class File {
 
     private String name;
 
-    @Lob
-    private byte[] fileData;
+    private String path;
 
     @ManyToMany
     @JoinTable(name = "files_users",

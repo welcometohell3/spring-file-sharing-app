@@ -2,8 +2,10 @@ package com.welcometohell.filesharing.controller;
 
 import com.welcometohell.filesharing.entity.User;
 import com.welcometohell.filesharing.repo.UserRepository;
+import com.welcometohell.filesharing.service.FileService;
 import com.welcometohell.filesharing.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -11,36 +13,36 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
-public class MainController {
+@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/user")
+public class UserController {
+
     @Autowired
-    private UserRepository userRepository;
+    private FileService fileService;
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/welcome")
-    public String welcome(){
+    @Autowired
+    private UserRepository userRepository;
+
+    @GetMapping("/current-user")
+    public ResponseEntity<User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
 
         User user = userRepository.findUserByName(currentUsername).orElse(null);
         if (user != null) {
-            return "Welcome to the unprotected page, " + user.getName();
+            return ResponseEntity.ok(user);
         } else {
-            return "User not found";
+            return ResponseEntity.status(404).body(null);
         }
     }
 
-    @GetMapping("/users")
-    public List<User> getAllUsers(){
+    @GetMapping("/all-users")
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-//
-//    @PostMapping("/do")
-//    public User doSome(@RequestBody User user){
-//       return userRepository.save(user);
-//    }
 
     @PostMapping("/new-user")
     public String addUser(@RequestBody User user) {
