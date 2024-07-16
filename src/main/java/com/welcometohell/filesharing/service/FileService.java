@@ -25,11 +25,12 @@ public class FileService {
     @Autowired
     private UserRepository userRepository;
 
+    private static final String UPLOAD_DIR = "/uploads/";
+
     public void uploadFile(MultipartFile file, User user) throws IOException {
         String originalFilename = file.getOriginalFilename();
         String filename = UUID.randomUUID() + "_" + originalFilename;
-        String uploadDir = "uploads/";
-        Path filePath = Paths.get(uploadDir + filename);
+        Path filePath = Paths.get(UPLOAD_DIR + filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         File fileEntity = new File();
@@ -38,7 +39,6 @@ public class FileService {
         fileEntity.addUser(user);
         fileRepository.save(fileEntity);
     }
-
     public void shareFile(Long fileId, String recipientUsername) {
         Optional<File> fileOptional = fileRepository.findById(fileId);
         Optional<User> recipientOptional = userRepository.findUserByName(recipientUsername);

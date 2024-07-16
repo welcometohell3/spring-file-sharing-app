@@ -44,9 +44,14 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @PostMapping("/new-user")
-    public String addUser(@RequestBody User user) {
-        userService.addUser(user);
-        return "User is saved";
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody User newUser) {
+        if (userRepository.existsByName(newUser.getName())) {
+            return ResponseEntity.badRequest().body("Username is already taken");
+        }
+
+        userService.saveUser(newUser);
+        return ResponseEntity.ok("User registered successfully");
     }
+
 }

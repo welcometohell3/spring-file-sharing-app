@@ -27,10 +27,11 @@ public class FileController {
     @Autowired
     private UserRepository userRepository;
 
+
     @PostMapping("/upload")
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
                                                    @RequestParam("userId") Long userId) {
-        Optional<User> userOptional  = userRepository.findById(userId);
+        Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             try {

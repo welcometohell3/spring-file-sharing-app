@@ -9,11 +9,14 @@ function UserList() {
     const fetchUsers = async () => {
       try {
         const authHeader = localStorage.getItem("authHeader");
-        const response = await axios.get("http://localhost:8080/api/users", {
-          headers: {
-            Authorization: authHeader,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:8080/user/all-users",
+          {
+            headers: {
+              Authorization: authHeader,
+            },
+          }
+        );
         setUsers(response.data);
       } catch (error) {
         setMessage("Failed to fetch users");
@@ -22,7 +25,7 @@ function UserList() {
     };
 
     fetchUsers();
-  }, []); // Пустой массив зависимостей
+  }, []);
 
   return (
     <div>

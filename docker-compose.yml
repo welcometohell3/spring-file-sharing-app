@@ -10,6 +10,8 @@ services:
       DATABASE_PASSWORD: pass
     depends_on:
       - files_db
+    volumes:
+      - uploads:/uploads
 
   files_db:
     image: postgres:16
@@ -24,3 +26,4 @@ services:
 
 volumes:
   pgdata: {}
+  uploads: {}
