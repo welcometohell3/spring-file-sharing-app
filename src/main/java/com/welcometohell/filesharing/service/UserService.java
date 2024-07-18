@@ -1,21 +1,25 @@
 package com.welcometohell.filesharing.service;
 
 import com.welcometohell.filesharing.entity.User;
-import com.welcometohell.filesharing.repo.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-@Service
-public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+import java.util.List;
+import java.util.Optional;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+public interface UserService {
 
-    public void saveUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-    }
+    List<User> getUsers();
+
+    Optional<User> getUserByUsername(String username);
+
+    boolean hasUserWithUsername(String username);
+
+    boolean hasUserWithEmail(String email);
+
+    User validateAndGetUserByUsername(String username);
+
+    User saveUser(User user);
+
+    void deleteUser(User user);
+
+    Optional<User> validUsernameAndPassword(String username, String password);
 }

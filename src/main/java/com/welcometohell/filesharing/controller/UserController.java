@@ -1,57 +1,54 @@
 package com.welcometohell.filesharing.controller;
 
+import com.welcometohell.filesharing.dto.UserDto;
 import com.welcometohell.filesharing.entity.User;
-import com.welcometohell.filesharing.repo.UserRepository;
-import com.welcometohell.filesharing.service.FileService;
+import com.welcometohell.filesharing.mapper.UserMapper;
+import com.welcometohell.filesharing.security.CustomUserDetails;
 import com.welcometohell.filesharing.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.welcometohell.filesharing.config.SwaggerConfig.BASIC_AUTH_SECURITY_SCHEME;
+
+@RequiredArgsConstructor
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping("/user")
+@RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired
-    private FileService fileService;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @GetMapping("/current-user")
-    public ResponseEntity<User> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
-
-        User user = userRepository.findUserByName(currentUsername).orElse(null);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.status(404).body(null);
-        }
+    @Operation(security = {@SecurityRequirement(name = BASIC_AUTH_SECURITY_SCHEME)})
+    @GetMapping("/me")
+    public UserDto getCurrentUser(@AuthenticationPrincipal CustomUserDetails currentUser) {
+        return userMapper.toUserDto(userService.validateAndGetUserByUsername(currentUser.getUsername()));
     }
 
-    @GetMapping("/all-users")
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    @Operation(security = {@SecurityRequirement(name = BASIC_AUTH_SECURITY_SCHEME)})
+    @GetMapping
+    public List<UserDto> getUsers() {
+        return userService.getUsers().stream()
+                .map(userMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User newUser) {
-        if (userRepository.existsByName(newUser.getName())) {
-            return ResponseEntity.badRequest().body("Username is already taken");
-        }
-
-        userService.saveUser(newUser);
-        return ResponseEntity.ok("User registered successfully");
+    @Operation(security = {@SecurityRequirement(name = BASIC_AUTH_SECURITY_SCHEME)})
+    @GetMapping("/{username}")
+    public UserDto getUser(@PathVariable String username) {
+        return userMapper.toUserDto(userService.validateAndGetUserByUsername(username));
     }
 
+    @Operation(security = {@SecurityRequirement(name = BASIC_AUTH_SECURITY_SCHEME)})
+    @DeleteMapping("/{username}")
+    public UserDto deleteUser(@PathVariable String username) {
+        User user = userService.validateAndGetUserByUsername(username);
+        userService.deleteUser(user);
+        return userMapper.toUserDto(user);
+    }
 }

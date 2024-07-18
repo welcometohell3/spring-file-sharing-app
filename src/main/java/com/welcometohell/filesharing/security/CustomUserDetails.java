@@ -1,34 +1,34 @@
 package com.welcometohell.filesharing.security;
 
-import com.welcometohell.filesharing.entity.User;
-import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
-@AllArgsConstructor
-public class UserDetailsImpl implements UserDetails {
-    private User user;
+@Data
+public class CustomUserDetails implements UserDetails {
+
+    private Long id;
+    private String username;
+    private String password;
+    private String name;
+    private String email;
+    private Collection<? extends GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.stream(user.getRole().split(", "))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        return authorities;
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return user.getName();
+        return username;
     }
 
     @Override
