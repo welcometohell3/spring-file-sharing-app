@@ -10,7 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -35,16 +38,9 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<FileEntity> getUserFiles(String username) {
-        User user = userService.validateAndGetUserByUsername(username);
-        return fileRepository.findByOwner(user);
-    }
-
-    @Override
     @Transactional
     public void shareFile(Long fileId, String username) throws FileNotFoundException {
-        FileEntity file = getFile(fileId); // Validate and handle exceptions
+        FileEntity file = getFile(fileId);
         User userToShareWith = userService.validateAndGetUserByUsername(username);
         file.getSharedWith().add(userToShareWith);
         fileRepository.save(file);
@@ -53,12 +49,20 @@ public class FileServiceImpl implements FileService {
     @Transactional
     public boolean isUserOwnerOfFile(String ownerUsername, Long fileId) {
         try {
-            FileEntity file = getFile(fileId); // Retrieve the file
+            FileEntity file = getFile(fileId);
             User owner = file.getOwner();
             return owner.getUsername().equals(ownerUsername);
         } catch (FileNotFoundException e) {
-            // Handle file not found exception
-            return false; // Or throw a custom exception
+            return false;
         }
+
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<FileEntity> getAllUserFiles(String username) {
+        User user = userService.validateAndGetUserByUsername(username);
+        Set<FileEntity> allFiles = new HashSet<>(fileRepository.findByOwner(user));
+        allFiles.addAll(fileRepository.findAllSharedWithUser(user.getId()));
+        return new ArrayList<>(allFiles);
     }
 }

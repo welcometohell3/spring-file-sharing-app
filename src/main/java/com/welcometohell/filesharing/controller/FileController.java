@@ -1,6 +1,7 @@
 package com.welcometohell.filesharing.controller;
 
 import com.welcometohell.filesharing.entity.FileEntity;
+import com.welcometohell.filesharing.entity.User;
 import com.welcometohell.filesharing.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/files")
@@ -46,27 +47,33 @@ public class FileController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    @GetMapping
-    @Transactional(readOnly = true)
-    public ResponseEntity<List<FileEntity>> getUserFiles(Principal principal) {
-        String username = principal.getName();
-        List<FileEntity> files = fileService.getUserFiles(username);
-        return ResponseEntity.ok(files);
-    }
-
     @PostMapping("/{fileId}/share")
     @Transactional
-    public ResponseEntity<String> shareFile(@PathVariable Long fileId, @RequestParam("username") String username, Principal principal) {
+    public ResponseEntity<String> shareFile(
+            @PathVariable Long fileId,
+            @RequestBody Map<String, String> requestBody,
+            Principal principal) {
         try {
             String ownerUsername = principal.getName();
+            String username = requestBody.get("username");
+
             if (!fileService.isUserOwnerOfFile(ownerUsername, fileId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to share this file");
             }
+
             fileService.shareFile(fileId, username);
             return ResponseEntity.ok("File shared successfully with " + username);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to share file");
         }
+    }
+
+
+    @GetMapping
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<FileEntity>> getUserFiles(Principal principal) {
+        String username = principal.getName();
+        List<FileEntity> files = fileService.getAllUserFiles(username);
+        return ResponseEntity.ok(files);
     }
 }

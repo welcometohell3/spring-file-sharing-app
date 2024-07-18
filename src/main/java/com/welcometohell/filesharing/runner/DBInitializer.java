@@ -25,8 +25,7 @@ public class DBInitializer implements CommandLineRunner {
         USERS.forEach(userService::saveUser);
         log.info("Database initialized");
     }
-    private static final List<User> USERS = Arrays.asList(
-            new User("admin", "admin", "Admin", "admin@mycompany.com", WebSecurityConfig.ADMIN),
+    private static final List<User> USERS = List.of(
             new User("user", "user", "User", "user@mycompany.com", WebSecurityConfig.USER)
     );
 
