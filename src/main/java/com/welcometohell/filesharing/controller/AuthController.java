@@ -7,7 +7,6 @@ import com.welcometohell.filesharing.entity.User;
 import com.welcometohell.filesharing.exception.DuplicatedUserInfoException;
 import com.welcometohell.filesharing.security.WebSecurityConfig;
 import com.welcometohell.filesharing.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
         Optional<User> userOptional = userService.validUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -34,7 +33,7 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/signup")
-    public AuthResponse signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public AuthResponse signUp( @RequestBody SignUpRequest signUpRequest) {
         if (userService.hasUserWithUsername(signUpRequest.getUsername())) {
             throw new DuplicatedUserInfoException(String.format("Username %s is already been used", signUpRequest.getUsername()));
         }

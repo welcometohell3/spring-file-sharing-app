@@ -1,7 +1,6 @@
 package com.welcometohell.filesharing.controller;
 
 import com.welcometohell.filesharing.entity.FileEntity;
-import com.welcometohell.filesharing.entity.User;
 import com.welcometohell.filesharing.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -57,7 +56,7 @@ public class FileController {
             String ownerUsername = principal.getName();
             String username = requestBody.get("username");
 
-            if (!fileService.isUserOwnerOfFile(ownerUsername, fileId)) {
+            if (fileService.isUserOwnerOfFile(ownerUsername, fileId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to share this file");
             }
 
@@ -75,5 +74,24 @@ public class FileController {
         String username = principal.getName();
         List<FileEntity> files = fileService.getAllUserFiles(username);
         return ResponseEntity.ok(files);
+    }
+
+    @DeleteMapping("/{fileId}")
+    @Transactional
+    public ResponseEntity<String> deleteFile(@PathVariable Long fileId, Principal principal) {
+        try {
+            String username = principal.getName();
+
+            if (!fileService.canDeleteFile(username, fileId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to delete this file");
+            }
+
+            fileService.deleteFile(fileId, username);
+            return ResponseEntity.ok("File deleted successfully");
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete file");
+        }
     }
 }

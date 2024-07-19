@@ -51,12 +51,24 @@ public class FileServiceImpl implements FileService {
         try {
             FileEntity file = getFile(fileId);
             User owner = file.getOwner();
-            return owner.getUsername().equals(ownerUsername);
+            return !owner.getUsername().equals(ownerUsername);
         } catch (FileNotFoundException e) {
-            return false;
+            return true;
         }
 
     }
+
+    @Override
+    public boolean canDeleteFile(String username, Long fileId) {
+        FileEntity file = fileRepository.findById(fileId).orElse(null);
+        if (file == null) {
+            return false;
+        }
+        // Проверяем, является ли пользователь владельцем файла или файл расшарен с ним
+        return file.getOwner().getUsername().equals(username) ||
+                file.getSharedWith().stream().anyMatch(user -> user.getUsername().equals(username));
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<FileEntity> getAllUserFiles(String username) {
@@ -64,5 +76,28 @@ public class FileServiceImpl implements FileService {
         Set<FileEntity> allFiles = new HashSet<>(fileRepository.findByOwner(user));
         allFiles.addAll(fileRepository.findAllSharedWithUser(user.getId()));
         return new ArrayList<>(allFiles);
+    }
+
+    @Override
+    public void deleteFile(Long fileId, String username) throws FileNotFoundException {
+        FileEntity file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException("File not found with id: " + fileId));
+
+        if (file.getOwner().getUsername().equals(username)) {
+            // Удаление файла, если пользователь - владелец
+            fileRepository.delete(file);
+        } else {
+            // Удаление файла из таблицы shared_with, если пользователь не владелец
+            removeFileFromSharedWith(fileId, username);
+        }
+    }
+
+    @Override
+    public void removeFileFromSharedWith(Long fileId, String username) {
+        FileEntity file = fileRepository.findById(fileId).orElse(null);
+        if (file != null) {
+            file.getSharedWith().removeIf(user -> user.getUsername().equals(username));
+            fileRepository.save(file);
+        }
     }
 }
