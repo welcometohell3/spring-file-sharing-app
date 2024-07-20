@@ -29,13 +29,13 @@
 1. Клонируйте репозиторий:
 
     ```bash
-    git clone <url-вашего-репозитория>
+    git clone https://github.com/welcometohell3/spring-file-sharing-app
     ```
 
 2. Перейдите в директорию с бэкендом:
 
     ```bash
-    cd путь/к/директории/с/бэкендом
+    cd spring-file-sharing-app
     ```
 
 3. Постройте проект с помощью Maven:
@@ -55,7 +55,7 @@
 1. Перейдите в директорию с фронтендом:
 
     ```bash
-    cd путь/к/директории/с/фронтендом
+    cd ./frontend
     ```
 
 2. Установите зависимости:
@@ -81,7 +81,7 @@
 3. Запустите Docker Compose:
 
     ```bash
-    docker-compose up --build
+    docker compose up --build
     ```
 
 ## Примеры использования
