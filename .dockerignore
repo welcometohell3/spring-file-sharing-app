@@ -1,7 +1,3 @@
-# Ignore the directory where uploaded files are stored
-uploads/
-
-# Ignore other files and directories that should not be included in the Docker image
 .git
 .gitignore
 .idea
