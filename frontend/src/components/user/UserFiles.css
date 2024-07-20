@@ -1,0 +1,38 @@
+/* Стиль для списка файлов */
+.file-list {
+  margin-top: 1em;
+  padding: 0;
+}
+
+/* Стиль для каждого элемента списка */
+.file-list-item {
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box; /* Убедитесь, что padding не увеличивает высоту элемента */
+}
+
+/* Стиль для кнопок действий */
+.file-actions {
+  margin-left: auto; /* Выравнивание кнопок по правому краю */
+}
+
+.file-action-button {
+  margin: 0 5px;
+  min-width: 80px; /* Задание минимальной ширины для кнопок */
+}
+
+/* Переопределение стиля для сегмента, чтобы уменьшить отступы */
+.ui.segment {
+  padding: 1em !important; /* Используем !important, чтобы переопределить стиль Semantic UI */
+}
+
+/* Минимизация отступов в модальном окне */
+.ui.modal .actions {
+  margin: 0;
+}
+
+/* Убедитесь, что нет лишних отступов в модальном окне */
+.ui.modal .content {
+  padding: 1em;
+}
