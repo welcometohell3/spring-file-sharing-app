@@ -23,7 +23,8 @@ public class AuthController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
-        Optional<User> userOptional = userService.validUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword());
+        Optional<User> userOptional = userService.validUsernameAndPassword(loginRequest.getUsername(),
+                loginRequest.getPassword());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             return ResponseEntity.ok(new AuthResponse(user.getId(), user.getName(), user.getRole()));
@@ -33,12 +34,14 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/signup")
-    public AuthResponse signUp( @RequestBody SignUpRequest signUpRequest) {
+    public AuthResponse signUp(@RequestBody SignUpRequest signUpRequest) {
         if (userService.hasUserWithUsername(signUpRequest.getUsername())) {
-            throw new DuplicatedUserInfoException(String.format("Username %s is already been used", signUpRequest.getUsername()));
+            throw new DuplicatedUserInfoException(
+                    String.format("Username %s is already been used", signUpRequest.getUsername()));
         }
         if (userService.hasUserWithEmail(signUpRequest.getEmail())) {
-            throw new DuplicatedUserInfoException(String.format("Email %s is already been used", signUpRequest.getEmail()));
+            throw new DuplicatedUserInfoException(
+                    String.format("Email %s is already been used", signUpRequest.getEmail()));
         }
 
         User user = userService.saveUser(createUser(signUpRequest));

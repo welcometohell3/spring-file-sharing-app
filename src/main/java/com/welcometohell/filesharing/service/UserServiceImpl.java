@@ -40,7 +40,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User validateAndGetUserByUsername(String username) {
         return getUserByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(String.format("User with username %s not found", username)));
+                .orElseThrow(
+                        () -> new UserNotFoundException(String.format("User with username %s not found", username)));
     }
 
     @Override

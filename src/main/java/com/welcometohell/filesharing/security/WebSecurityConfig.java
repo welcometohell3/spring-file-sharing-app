@@ -1,6 +1,5 @@
 package com.welcometohell.filesharing.security;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,29 +17,31 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/files", "/api/files/**","/api/users/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/files/upload").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/files/**").authenticated()
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .build();
-    }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                return http
+                                .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+                                                .requestMatchers(HttpMethod.GET,
+                                                                "/api/files", "/api/files/**", "/api/users/**")
+                                                .authenticated()
+                                                .requestMatchers(HttpMethod.POST, "/api/files/upload").authenticated()
+                                                .requestMatchers(HttpMethod.DELETE, "/api/files/**").authenticated()
+                                                .requestMatchers("/auth/**").permitAll()
+                                                .anyRequest().authenticated())
+                                .httpBasic(Customizer.withDefaults())
+                                .sessionManagement(sessionManagement -> sessionManagement
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .cors(Customizer.withDefaults())
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .build();
+        }
 
-    public static final String ADMIN = "ADMIN";
-    public static final String USER = "USER";
+        @Bean
+        PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
+
+        public static final String ADMIN = "ADMIN";
+        public static final String USER = "USER";
 }

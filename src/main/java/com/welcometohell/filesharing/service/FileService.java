@@ -9,11 +9,18 @@ import java.util.List;
 
 public interface FileService {
     FileEntity saveFile(String username, MultipartFile file) throws IOException;
+
     FileEntity getFile(Long id) throws FileNotFoundException;
+
     void shareFile(Long fileId, String username) throws FileNotFoundException;
+
     List<FileEntity> getAllUserFiles(String username);
+
     boolean isUserOwnerOfFile(String ownerUsername, Long fileId);
+
     boolean canDeleteFile(String username, Long fileId);
+
     void deleteFile(Long fileId, String username) throws FileNotFoundException;
+
     void removeFileFromSharedWith(Long fileId, String username);
 }

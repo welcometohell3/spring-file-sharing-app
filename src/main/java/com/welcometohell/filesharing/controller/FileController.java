@@ -20,7 +20,7 @@ import java.util.*;
 public class FileController {
 
     @Autowired
-    private  FileService fileService;
+    private FileService fileService;
 
     @PostMapping("/upload")
     @Transactional
@@ -46,6 +46,7 @@ public class FileController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @PostMapping("/{fileId}/share")
     @Transactional
     public ResponseEntity<String> shareFile(
@@ -66,7 +67,6 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to share file");
         }
     }
-
 
     @GetMapping
     @Transactional(readOnly = true)

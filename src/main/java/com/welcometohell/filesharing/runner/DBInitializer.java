@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -25,9 +24,8 @@ public class DBInitializer implements CommandLineRunner {
         USERS.forEach(userService::saveUser);
         log.info("Database initialized");
     }
+
     private static final List<User> USERS = List.of(
-            new User("user", "user", "User", "user@mycompany.com", WebSecurityConfig.USER)
-    );
+            new User("user", "user", "User", "user@mycompany.com", WebSecurityConfig.USER));
 
 }
-
