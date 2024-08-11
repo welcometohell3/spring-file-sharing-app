@@ -3,7 +3,6 @@ import { NavLink, Navigate } from "react-router-dom";
 import { Button, Form, Grid, Segment, Message } from "semantic-ui-react";
 import { useAuth } from "../context/AuthContext";
 import { fileApi } from "../file/FileApi";
-import { handleLogError } from "../misc/Helpers";
 
 function Login() {
   const Auth = useAuth();
@@ -41,7 +40,6 @@ function Login() {
       setPassword("");
       setIsError(false);
     } catch (error) {
-      handleLogError(error);
       setIsError(true);
     }
   };

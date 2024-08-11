@@ -9,7 +9,6 @@ import {
 } from "semantic-ui-react";
 import { fileApi } from "../file/FileApi";
 import { useAuth } from "../context/AuthContext";
-import { handleLogError } from "../misc/Helpers";
 import "./UserFiles.css";
 
 function UserFiles() {
@@ -21,7 +20,6 @@ function UserFiles() {
   const [shareUsername, setShareUsername] = useState("");
   const [users, setUsers] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
-  const [deleteFileId, setDeleteFileId] = useState(null);
   const Auth = useAuth();
   const user = Auth.getUser();
 
@@ -31,7 +29,6 @@ function UserFiles() {
         const response = await fileApi.getUserFiles(user);
         setFiles(response.data);
       } catch (error) {
-        handleLogError(error);
         setError("Failed to load files");
       }
     };
@@ -45,7 +42,6 @@ function UserFiles() {
         const response = await fileApi.getUsers(user);
         setUsers(response.data);
       } catch (error) {
-        handleLogError(error);
         setError("Failed to load users");
       }
     };
@@ -64,7 +60,6 @@ function UserFiles() {
       link.click();
       link.remove();
     } catch (error) {
-      handleLogError(error);
       setError("Failed to download file");
     }
   };
@@ -82,7 +77,6 @@ function UserFiles() {
       setShareUsername("");
       setSuccessMessage("File shared successfully with " + shareUsername);
     } catch (error) {
-      handleLogError(error);
       setError("Failed to share file");
     }
   };
@@ -98,11 +92,9 @@ function UserFiles() {
       setDeleteModalOpen(false);
       setCurrentFile(null);
       setSuccessMessage("File deleted successfully");
-      // Refresh file list after deletion
       const response = await fileApi.getUserFiles(user);
       setFiles(response.data);
     } catch (error) {
-      handleLogError(error);
       setError("Failed to delete file");
     }
   };

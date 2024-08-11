@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { Button, Form, Message, Progress, Segment } from "semantic-ui-react";
+import { Button, Form, Progress, Segment } from "semantic-ui-react";
 import { fileApi } from "./FileApi";
 import { useAuth } from "../context/AuthContext";
-import { handleLogError } from "../misc/Helpers";
 import "./FileUpload.css";
 
 function FileUpload() {
@@ -40,7 +39,6 @@ function FileUpload() {
       await fileApi.uploadFile(user, file, config);
       setSuccess(true);
     } catch (error) {
-      handleLogError(error);
       setError("Failed to upload file");
     } finally {
       setIsLoading(false);
@@ -73,13 +71,6 @@ function FileUpload() {
             />
           )}
         </div>
-        {/* <Message
-          success
-          header="File Uploaded"
-          content="File uploaded successfully"
-          hidden={!success}
-        />
-        <Message error header="Error" content={error} hidden={!error} /> */}
       </Form>
     </Segment>
   );

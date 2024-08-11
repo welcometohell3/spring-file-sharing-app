@@ -1,5 +1,5 @@
 import axios from "axios";
-import { config } from "../../Constants";
+import { config } from "../Constants";
 
 export const fileApi = {
   authenticate,
@@ -29,12 +29,6 @@ function signup(user) {
   });
 }
 
-// function getUsers(user, username) {
-//   const url = username ? `/api/users/${username}` : "/api/users";
-//   return instance.get(url, {
-//     headers: { Authorization: basicAuth(user) },
-//   });
-// }
 function getUsers(user) {
   return instance.get("/api/users", getAuthHeaders(user));
 }
@@ -63,7 +57,7 @@ function uploadFile(user, file) {
 function shareFile(user, fileId, shareUsername) {
   return instance.post(
     `/api/files/${fileId}/share`,
-    { username: shareUsername }, // Обратите внимание на это изменение
+    { username: shareUsername },
     getAuthHeaders(user)
   );
 }
@@ -84,13 +78,10 @@ function getAuthHeaders(user) {
     headers: { Authorization: basicAuth(user) },
   };
 }
-// -- Axios
 
 const instance = axios.create({
   baseURL: config.url.API_BASE_URL,
 });
-
-// -- Helper functions
 
 function basicAuth(user) {
   return `Basic ${user.authdata}`;

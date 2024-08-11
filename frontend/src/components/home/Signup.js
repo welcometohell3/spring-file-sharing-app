@@ -3,7 +3,6 @@ import { NavLink, Navigate } from "react-router-dom";
 import { Button, Form, Grid, Segment, Message } from "semantic-ui-react";
 import { useAuth } from "../context/AuthContext";
 import { fileApi } from "../file/FileApi";
-import { handleLogError } from "../misc/Helpers";
 
 function Signup() {
   const Auth = useAuth();
@@ -54,7 +53,6 @@ function Signup() {
       setIsError(false);
       setErrorMessage("");
     } catch (error) {
-      handleLogError(error);
       if (error.response && error.response.data) {
         const errorData = error.response.data;
         let errorMessage = "Invalid fields";
