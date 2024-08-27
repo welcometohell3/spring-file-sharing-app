@@ -34,6 +34,10 @@
 
 2. Перейдите в корневую директорию проекта.
 
+    ```bash
+   cd spring-file-sharing-app
+    ```
+
 3. Запустите Docker Compose:
 
     ```bash
