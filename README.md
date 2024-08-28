@@ -27,7 +27,7 @@
 1. Клонируйте репозиторий:
 
     ```bash
-    git clone https://github.com/welcometohell3/spring-file-sharing-app
+    git clone git@github.com:welcometohell3/spring-file-sharing-app.git
     ```
 
 2. Перейдите в корневую директорию проекта.
