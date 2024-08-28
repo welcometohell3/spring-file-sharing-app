@@ -26,10 +26,8 @@ public class FileEntity {
     private User owner;
 
     @ManyToMany
-    @JoinTable(name = "file_shared_with",
-            joinColumns = @JoinColumn(name = "file_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> sharedWith;
+    @JoinTable(name = "file_shared_with", joinColumns = @JoinColumn(name = "file_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> sharedWith = new HashSet<>();
 
     public FileEntity(String name, byte[] data, User owner) {
         this.name = name;

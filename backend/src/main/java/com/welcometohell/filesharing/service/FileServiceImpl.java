@@ -64,7 +64,6 @@ public class FileServiceImpl implements FileService {
         if (file == null) {
             return false;
         }
-        // Проверяем, является ли пользователь владельцем файла или файл расшарен с ним
         return file.getOwner().getUsername().equals(username) ||
                 file.getSharedWith().stream().anyMatch(user -> user.getUsername().equals(username));
     }
@@ -84,10 +83,8 @@ public class FileServiceImpl implements FileService {
                 .orElseThrow(() -> new FileNotFoundException("File not found with id: " + fileId));
 
         if (file.getOwner().getUsername().equals(username)) {
-            // Удаление файла, если пользователь - владелец
             fileRepository.delete(file);
         } else {
-            // Удаление файла из таблицы shared_with, если пользователь не владелец
             removeFileFromSharedWith(fileId, username);
         }
     }
